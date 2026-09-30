@@ -46,4 +46,15 @@ public interface Scoreboard {
      * @return immutable snapshot list, never null
      */
     List<Match> getSummary();
+
+    /**
+     * Extra operation: returns live matches involving the given team.
+     *
+     * <p>Matching is case-insensitive and ignores leading/trailing whitespace.
+     * Ordering follows {@link #getSummary()}.
+     *
+     * @param team team name to search for, non-blank
+     * @return immutable snapshot list, never null
+     */
+    List<Match> findMatchesByTeam(String team);
 }

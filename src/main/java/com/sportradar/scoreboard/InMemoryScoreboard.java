@@ -94,24 +94,52 @@ public class InMemoryScoreboard implements Scoreboard {
     public List<Match> getSummary() {
         lock.readLock().lock();
         try {
-            List<Match> snapshot = new ArrayList<>(matches.size());
-            for (var e : matches.entrySet()) {
-                LiveEntry live = e.getValue();
-                int homeScore;
-                int awayScore;
-                synchronized (live) {
-                    homeScore = live.homeScore;
-                    awayScore = live.awayScore;
-                }
-                snapshot.add(new Match(
-                        e.getKey(), live.homeTeam, live.awayTeam,
-                        homeScore, awayScore, live.startOrder, live.startedAt));
-            }
+            List<Match> snapshot = snapshotLocked();
             snapshot.sort(SUMMARY_ORDER);
             return List.copyOf(snapshot);
         } finally {
             lock.readLock().unlock();
         }
+    }
+
+    @Override
+    public List<Match> findMatchesByTeam(String team) {
+        if (team == null || team.isBlank()) {
+            throw new ScoreboardException("team must be non-blank");
+        }
+        String wanted = team.strip();
+        lock.readLock().lock();
+        try {
+            List<Match> snapshot = snapshotLocked();
+            List<Match> filtered = new ArrayList<>();
+            for (Match match : snapshot) {
+                if (match.homeTeam().equalsIgnoreCase(wanted)
+                        || match.awayTeam().equalsIgnoreCase(wanted)) {
+                    filtered.add(match);
+                }
+            }
+            filtered.sort(SUMMARY_ORDER);
+            return List.copyOf(filtered);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    private List<Match> snapshotLocked() {
+        List<Match> snapshot = new ArrayList<>(matches.size());
+        for (var e : matches.entrySet()) {
+            LiveEntry live = e.getValue();
+            int homeScore;
+            int awayScore;
+            synchronized (live) {
+                homeScore = live.homeScore;
+                awayScore = live.awayScore;
+            }
+            snapshot.add(new Match(
+                    e.getKey(), live.homeTeam, live.awayTeam,
+                    homeScore, awayScore, live.startOrder, live.startedAt));
+        }
+        return snapshot;
     }
 
     private void ensureTeamNotBusy(String team) {
