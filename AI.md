@@ -11,13 +11,13 @@ What AI helped with:
 - Extra operation proposal: `findMatchesByTeam` as a read-only extension in a separate commit.
 - Drafts of `README.md` (assumptions, trade-offs) and this file.
 
-Prompt flow (condensed):
-1. Pasted Sportradar task, asked for project plan (Java 17, Maven, JUnit 5).
-2. Approved build; agent scaffolded repo, implemented core ops in staged commits.
-3. Added extra operation, docs, ran full verification.
+How it was used:
+1. Asked AI to plan the project from the task description.
+2. Built the core features step by step with AI-generated drafts.
+3. Added the extra feature, wrote docs, and verified everything with tests.
 
-Human decisions kept: Java 17 baseline, Maven coordinates, `AtomicLong` start-order tie-break,
-allowing downward score corrections, rejecting a busy team, final choice of extra operation.
+My role: I reviewed the generated code, fixed edge cases, chose the extra
+operation (`findMatchesByTeam`), and confirmed the final structure and behavior.
 
 Verification:
 ```bash
